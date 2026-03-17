@@ -58,13 +58,15 @@ public class AdminController {
         Map<String, Long> studentsPerTeacher = teachers.stream()
                 .collect(Collectors.toMap(
                         Teacher::getName,
-                        t -> studentService.getStudentsByTeacher(t).stream().count()));
+                        t -> studentService.getStudentsByTeacher(t).stream().count(),
+                        Long::sum));
 
         // Map teacher name to course count
         Map<String, Long> coursesPerTeacher = teachers.stream()
                 .collect(Collectors.toMap(
                         Teacher::getName,
-                        t -> courseService.getCoursesByTeacher(t).stream().count()));
+                        t -> courseService.getCoursesByTeacher(t).stream().count(),
+                        Long::sum));
 
         model.addAttribute("teachers", teachers);
         model.addAttribute("students", students);
