@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+
+    <title>[[${student.studentName}]]'s Course</title>
+
+</head>
+
+<body>
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3 d-flex justify-content-between align-items-center">
+                        <h4 class="heading mb-0">Courses enrolled by <strong>[[${student.studentName}]]</strong></h4>
+                        <div class="text-end m-3">
+                            <a th:href="@{/studentlist}" class="btn btn-warning">
+                                <i class="fas fa-arrow-left"></i> Go Back
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive basic-tbl">
+                            <table class="table table-bordered showlist">
+                                <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                        <th>Course ID</th>
+                                        <th>Course Name</th>
+                                        <th>Rank</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="enrollment : ${enrollments}">
+                                        <td>[[${enrollment.course.courseId}]]</td>
+                                        <td>[[${enrollment.course.courseName}]]</td>
+                                        <td><span class="badge" th:classappend="${
+                                              #strings.trim(enrollment.performance)?.toUpperCase() == 'A' ? 'bg-success' :
+                                              #strings.trim(enrollment.performance)?.toUpperCase() == 'B' ? 'bg-info' :
+                                              #strings.trim(enrollment.performance)?.toUpperCase() == 'C' ? 'bg-warning' :
+                                              #strings.trim(enrollment.performance)?.toUpperCase() == 'D' ? 'bg-danger' :
+                                              'bg-dark'
+                                            }"
+                                                th:text="${enrollment.performance != null ? enrollment.performance : '#'}">
+                                            </span></td>
+                                        <td>
+                                            <form id="unenrollForm"
+                                                th:action="@{'/students/' + ${student.studentId} + '/courses/' + ${enrollment.course.courseId} + '/remove'}"
+                                                method="post" style="display: inline;">
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    onclick="showConfirmModal()">
+                                                    <i class="fa-solid fa-minus"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+
+                                    </tr>
+                                    <div class="modal fade" id="confirmModal" tabindex="-1"
+                                        aria-labelledby="confirmModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title" id="confirmModalLabel">Confirm Unenrollment
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white"
+                                                        data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to unenroll from this course?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-danger"
+                                                        onclick="submitUnenrollForm()">Yes, Unenroll</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            function showConfirmModal() {
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                modal.show();
+            }
+
+            function submitUnenrollForm() {
+                document.getElementById('unenrollForm').submit();
+            }
+        </script>
+    </th:block>
+
+
+
+</body>
+
+</html>

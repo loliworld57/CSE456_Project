@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin_layout.html}">
+
+<head>
+    <title>User's Course List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header">
+                    <form method="get" action="/admin/courses">
+                        <div class="form-group">
+                            <label for="userSelect">Select Teacher:</label>
+                            <select class="form-select" id="userSelect" name="selectedUserId"
+                                onchange="this.form.submit()">
+                                <option value="">----------</option>
+                                <option th:each="t : ${teachers}" th:value="${t.teacherId}" th:text="${t.name}"
+                                    th:selected="${t.teacherId == selectedUserId}">
+                                </option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="">
+                        <div class="table-responsive">
+                            <table class="table showlist table-bordered">
+                                <thead class="bg-dark">
+                                    <tr class="text-secondary">
+                                        <th>Id</th>
+                                        <th>Subject</th>
+                                        <th>Course Name</th>
+                                        <th>Students</th>
+                                        <th>Teacher</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="course : ${courses}">
+                                        <td>[[${course.courseId}]]</td>
+                                        <td>[[${course.courseSubject}]]</td>
+                                        <td>[[${course.courseName}]]</td>
+                                        <td>
+                                            <a th:href="@{/admin/courses(selectedUserId=${selectedUserId}, selectedCourseId=${course.courseId})}"
+                                                class="btn btn-primary btn-sm">
+                                                <i class="fa-solid fa-user"></i>
+                                                ([[${course.enrollments.size()}]])
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span th:text="${course.teacher.name}"></span>
+                                            <span th:if="${course.teacher == null}" class="text-muted">No teacher
+                                                assigned</span>
+                                        </td>
+                                    </tr>
+                            </table>
+                            <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Student List of [[${selectedCourseId}]]</h5>
+                                            <a th:href="@{/admin/courses(selectedUserId=${selectedUserId})}"
+                                                class="btn-close"></a>
+                                        </div>
+                                        <div class="modal-body">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Student Name</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="student: ${students}">
+                                                        <td th:text="${student.studentName}"></td>
+                                                    </tr>
+                                                    <tr th:if="${#lists.isEmpty(students)}">
+                                                        <td colspan="1" class="text-center text-muted">No students
+                                                            enrolled.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:if="${selectedCourseId != null}">
+            const modal = new bootstrap.Modal(document.getElementById('studentModal'));
+            modal.show();
+        </script>
+    </th:block>
+</body>
+
+</html>

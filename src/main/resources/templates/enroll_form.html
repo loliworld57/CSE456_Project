@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{main_layout.html}"> 
+
+<head>
+    <title>Enroll Student to [[${course.courseName}]]</title>
+
+
+</head>
+
+<body>
+
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3">
+                        <h4 class="heading mb-0">Enroll Student in [[${course.courseName}]]</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive basic-tbl">
+                            <table class="table table-bordered showlist">
+                                <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                        <th>Student ID</th>
+                                        <th>Full Name</th>
+                                        <th>Parent Number</th>
+                                        <th>Entry Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="student : ${availableStudents}">
+                                        <td>[[${student.studentId}]]</td>
+                                        <td>[[${student.studentName}]]</td>
+                                        <td>[[${student.parentNumber}]]</td>
+                                        <td>[[${student.entryDate}]]</td>
+                                        <td>
+                                            <form th:action="@{'/courses/' + ${course.courseId} + '/enroll'}" method="post" style="display: inline;">
+                                                <input type="hidden" name="studentId" th:value="${student.studentId}" />
+                                                <button type="submit" class="btn btn-primary btn-sm">Enroll</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="text-center m-2">
+                                <a th:href="@{'/courses/' + ${course.courseId} + '/students'}" 
+                                   class="btn btn-secondary">Back</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer footer-outer">
+        <div class="copyright">
+            <p>Project CSE310 - Home Tutor Management</p>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

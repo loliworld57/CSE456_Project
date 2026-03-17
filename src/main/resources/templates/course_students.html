@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+
+    <title>[[${course.courseName}]]'s Student</title>
+
+
+
+
+</head>
+
+<body>
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3">
+                        <h4 class="heading mb-0">Students Enrolled in [[${course.courseName}]]</h4>
+                        <div class="text-end m-3">
+                            <a th:href="@{/courselist}" class="btn btn-warning">
+                                <i class="fas fa-arrow-left"></i> Go Back
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-3" th:each="enrollment : ${course.enrollments}">
+                                    <div class="studentcard">
+                                        <img th:src="${enrollment.student.avatarImg}" class="card-img-top"
+                                            style="height: 300px; object-fit: cover;">
+                                        <div class="card-body border-primary">
+                                            <div class="d-flex flex-row justify-content-between">
+                                                <h5 class="card-title">[[${enrollment.student.studentName}]]</h5>
+                                                <p class="badge" th:with="finalScore=${enrollment.finalScore}"
+                                                    th:classappend="${
+                                                  finalScore == null ? 'bg-secondary' :
+                                                  finalScore >= 8 ? 'bg-success' :
+                                                  finalScore >= 6.5 ? 'bg-info' :
+                                                  finalScore >= 5 ? 'bg-warning' :
+                                                  finalScore >= 3.5 ? 'bg-danger' :
+                                                  'bg-dark'
+                                              }">
+                                                    [[${enrollment.performance}]]
+                                                </p>
+                                            </div>
+                                            <div class="d-flex gap-2 scoreshow">
+                                                <div class="d-flex flex-column flex-fill align-items-center">
+                                                    <p>Progress Score</p>
+                                                    <p
+                                                        th:text="${enrollment.progressScore != null ? #numbers.formatDecimal(enrollment.progressScore, 1, 1) : '-'}">
+                                                        -</p>
+                                                </div>
+                                                <div class="d-flex flex-column flex-fill align-items-center">
+                                                    <p>Test Score</p>
+                                                    <p
+                                                        th:text="${enrollment.testScore != null ? #numbers.formatDecimal(enrollment.testScore, 1, 1) : '-'}">
+                                                        -</p>
+                                                </div>
+                                                <div class="d-flex flex-column flex-fill align-items-center">
+                                                    <p>Final Score</p>
+                                                    <p
+                                                        th:text="${enrollment.finalScore != null ? #numbers.formatDecimal(enrollment.finalScore, 1, 1) : '-'}">
+                                                        -</p>
+                                                </div>
+
+                                            </div>
+                                            <button type="button" class="btn btn-primary btn-sm flex-fill text-center"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#scoreModal' + ${enrollment.student.studentId}">
+                                                Update Scores
+                                            </button>
+
+                                            <div class="modal fade"
+                                                th:id="'scoreModal' + ${enrollment.student.studentId}">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <form
+                                                            th:action="@{'/courses/' + ${course.courseId} + '/students/' + ${enrollment.student.studentId} + '/scores'}"
+                                                            method="post">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Update Scores for
+                                                                    [[${enrollment.student.studentName}]]</h5>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="mb-3">
+                                                                    <label>Progress Score (0-10)</label>
+                                                                    <input type="number" name="progressScore"
+                                                                        class="form-control" required min="0" max="10"
+                                                                        step="0.1"
+                                                                        th:value="${enrollment.progressScore}">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label>Test Score (0-10)</label>
+                                                                    <input type="number" name="testScore"
+                                                                        class="form-control" required min="0" max="10"
+                                                                        step="0.1" th:value="${enrollment.testScore}">
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-bs-dismiss="modal">Close</button>
+                                                                <button type="submit" class="btn btn-primary">Save
+                                                                    Changes</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+</body>
+
+</html>

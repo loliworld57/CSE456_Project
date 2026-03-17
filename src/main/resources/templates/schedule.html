@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+    <title>Schedule</title>
+</head>
+
+<body>
+    <div class="container-fluid" layout:fragment="content">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header border-0 p-3">
+                        <h1>Time Table</h1>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${scheduleTable.isEmpty()}">
+                            <p>No schedule available.</p>
+                        </div>
+
+                        <div th:unless="${scheduleTable.isEmpty()}" class="table-responsive">
+                            <table class="table table-bordered text-center mb-0 schedule-table">
+                                <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                        <th>Time / Day</th>
+                                        <th th:each="day : ${days}" th:text="${day}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="time, iterStatTime : ${timeSlots}">
+                                        <td>[[${time}]]</td>
+                                        <th:block th:each="day, iterStatDay : ${days}">
+                                            <th:block th:with="cell=${scheduleTable.get(day).get(time)}">
+                                                <td th:if="${cell.visible}" th:rowspan="${cell.rowspan}"
+                                                    class="schedule-bg rounded schedule-cell text-start">
+                                                    <div class="class-block p-2 m-1">
+                                                        <p class="title mb-1">
+                                                            <strong>[[${cell.course.courseName}]]</strong></p>
+                                                        <p class="mb-1"><strong>Start: </strong>[[${#temporals.format(cell.startTime,
+                                                            'H:mm')}]]</p>
+                                                        <p class="mb-1"><strong>Periods:
+                                                            </strong>[[${#numbers.formatInteger(cell.periods, 1)}]]</p>
+                                                    </div>
+                                                </td>
+                                                
+                                                <td th:if="${!occupiedSlots[iterStatDay.index][iterStatTime.index]}"></td>
+                                            </th:block>
+                                        </th:block>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

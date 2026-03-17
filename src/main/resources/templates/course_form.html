@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+    <title th:text="${course.courseId != null ? 'Update Course - ' + course.courseName : 'Add New Course'}"></title>
+
+</head>
+
+<body>
+
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <!-- Row -->
+            <!-- column-->
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3">
+                        <h4 class="heading mb-0" th:text="${course.courseId != null ? 'Update Course - ' + course.courseName : 'Add New Course'}"></h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive basic-tbl">
+                            <div class="container-fluid">
+
+                                <form th:action="@{/courses/save}" method="post" th:object="${course}"
+                                    style="max-width: 400px; margin:0 auto">
+                                    <div class="border">
+                                        <div class="form-group row m-2">
+                                            <label class="col-sm-4 col-form-label">Course Subject</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" th:field="*{courseSubject}" class="form-control"
+                                                    required minlength="2" placeholder="MATH"
+                                                    title="Subject code (e.g. MATH)" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row m-2">
+                                            <label class="col-sm-4 col-form-label">Course Number</label>
+                                            <div class="col-sm-8">
+                                                <input type="text"
+                                                    th:value="${course.courseId != null ? course.courseId.substring(4) : ''}"
+                                                    name="number" class="form-control" required pattern="[0-9]{3}"
+                                                    placeholder="101" title="3-digit number (e.g. 101)" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row m-2">
+                                            <label class="col-sm-4 col-form-label">Course Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" th:field="*{courseName}" class="form-control"
+                                                    required minlength="5" maxlength="50" placeholder="Mathematics 1"
+                                                    title="Full course name" />
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-primary m-2">Save</button>
+                                            <button type="button" class="btn btn-secondary m-2"
+                                                onclick="cancelForm()">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+
+                            </div>
+
+                            <script type="text/javascript">
+                                function cancelForm() {
+                                    window.location = "/courses";
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+>
+    
+
+
+</body>
+
+</html>

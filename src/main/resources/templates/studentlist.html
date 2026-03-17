@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+    <title>Student List</title>
+</head>
+
+<body>
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3">
+                        <h4 class="heading mb-0">Student List</h4>
+                        <form th:action="@{/studentlist}" method="get" class="mt-3">
+                            <div class="input-group search">
+                                <input type="text" class="form-control border border-primary" name="keyword" id="search"
+                                    th:value="${keyword}" placeholder="Search for student..">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-3" th:each="students : ${studentPage.content}">
+                                    <div class="studentcard">
+                                        <img th:src="${students.avatarImg}" class="card-img-top mx-auto d-block"
+                                            style="height: 300px; object-fit: cover; width: 80%;">
+                                        <div class="card-body border-primary">
+                                            <h5 class="card-title">[[${students.studentName}]]</h5>
+                                            <p>
+                                                <i class="fa-solid fa-phone text-black"></i> - 
+                                                <strong>[[${students.parentNumber}]]</strong>
+                                            </p>
+                                            <p class="card-text">sID: <strong>[[${students.studentId}]]</strong></p>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-info btn-sm flex-fill text-center"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#scoreModal' + ${students.studentId}">
+                                                    View Scores
+                                                </button>
+                                                <a class="btn btn-primary btn-sm flex-fill text-center"
+                                                    th:href="@{'/students/' + ${students.studentId} + '/courses'}">
+                                                    View Courses
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" th:id="'scoreModal' + ${students.studentId}">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Course Scores for
+                                                            [[${students.studentName}]]</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="table-responsive">
+                                                             <table class="table table-bordered">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Course Name</th>
+                                                                        <th>Progress Score</th>
+                                                                        <th>Test Score</th>
+                                                                        <th>Final Score</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr th:if="${students.enrollments.empty}">
+                                                                        <td colspan="4" class="text-center">No
+                                                                            courses enrolled</td>
+                                                                    </tr>
+                                                                    <tr th:each="enrollment : ${students.enrollments}">
+                                                                        <td>[[${enrollment.course.courseName}]]
+                                                                        </td>
+                                                                        <td
+                                                                            th:text="${enrollment.progressScore != null ? #numbers.formatDecimal(enrollment.progressScore, 1, 1) : '-'}">
+                                                                            -</td>
+                                                                        <td
+                                                                            th:text="${enrollment.testScore != null ? #numbers.formatDecimal(enrollment.testScore, 1, 1) : '-'}">
+                                                                            -</td>
+                                                                        <td
+                                                                            th:text="${enrollment.finalScore != null ? #numbers.formatDecimal(enrollment.finalScore, 1, 1) : '-'}">
+                                                                            -</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center m-3">
+                            <div>
+                                <p>Showing page <strong>[[${studentPage.number + 1}]]</strong> of
+                                    <strong>[[${studentPage.totalPages}]]</strong>
+                                </p>
+                            </div>
+                            <div class="btn-group">
+                                <!-- First Page -->
+                                <a th:href="@{/studentlist(page=0, keyword=${keyword})}"
+                                    class="btn btn-secondary btn-sm" th:classappend="${studentPage.first} ? 'disabled'">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+
+                                <!-- Previous Page -->
+                                <a th:href="@{/studentlist(page=${studentPage.number - 1}, keyword=${keyword})}"
+                                    class="btn btn-secondary btn-sm"
+                                    th:classappend="${!studentPage.hasPrevious()} ? 'disabled'">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+
+                                <!-- Current Page -->
+                                <span class="btn btn-primary btn-sm">
+                                    [[${studentPage.number + 1}]]
+                                </span>
+
+                                <!-- Next Page -->
+                                <a th:href="@{/studentlist(page=${studentPage.number + 1}, keyword=${keyword})}"
+                                    class="btn btn-secondary btn-sm"
+                                    th:classappend="${!studentPage.hasNext()} ? 'disabled'">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+
+                                <!-- Last Page -->
+                                <a th:href="@{/studentlist(page=${studentPage.totalPages - 1}, keyword=${keyword})}"
+                                    class="btn btn-secondary btn-sm" th:classappend="${studentPage.last} ? 'disabled'">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
