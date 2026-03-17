@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin_layout.html}">
+
+<head>
+    <title>User's Student List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header">
+                    <form method="get" action="/admin/students">
+                        <div class="form-group">
+                            <label for="userSelect">Select Teacher:</label>
+                            <select class="form-select" id="userSelect" name="selectedUserId"
+                                onchange="this.form.submit()">
+                                <option value="">----------</option>
+                                <option th:each="t : ${teachers}" th:value="${t.teacherId}" th:text="${t.name}"
+                                    th:selected="${t.teacherId == selectedUserId}">
+                                </option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="">
+                        <div class="table-responsive">
+                            <table class="table showlist table-bordered">
+                                <thead class="bg-dark">
+                                    <tr class="text-secondary">
+                                        <th>Student ID</th>
+                                        <th>Full Name</th>
+                                        <th>Parent Number</th>
+                                        <th>Entry Date</th>
+                                        <th>Avatar</th>
+                                        <th>Teacher</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="student : ${students}">
+                                        <td>[[${student.studentId}]]</td>
+                                        <td>[[${student.studentName}]]</td>
+                                        <td>[[${student.parentNumber}]]</td>
+                                        <td>[[${student.entryDate}]]</td>
+                                        <td>
+                                            <img th:src="${student.avatarImg != null} ? @{${student.avatarImg}} : @{/Assets/img/kimco.jpg}"
+                                                class="rounded-circle" width="50" height="50"
+                                                style="object-fit: cover;">
+                                        </td>
+                                        <td>[[${student.teacher.name}]]</td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(students)}">
+                                        <td colspan="5" class="text-center text-muted">No students found for the
+                                            selected teacher.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

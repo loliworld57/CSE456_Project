@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+
+
+    <title>Home Tutor Management</title>
+
+</head>
+
+<body>
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3">
+                        <h4 class="heading mb-0">Student List</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive basic-tbl">
+                            <table class="table table-bordered showlist">
+                                <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                  <th>Student ID</th>
+                                  <th>Full Name</th>
+                                  <th>Parent Number</th>
+                                  <th>Performance</th>
+                                  <th>Entry Date</th>
+                                  <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                  <th:block th:each="students : ${listStudents}">
+                                      <tr>
+                                        <td>[[${students.studentId}]]</td>
+                                        <td>[[${students.studentName}]]</td>
+                                        <td>[[${students.parentNumber}]]</td>
+                                        <td>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>[[${students.performance}]]</span>
+                                                <a class="btn-info btn-sm ms-2" 
+                                                   th:href="@{'/students/' + ${students.studentId} + '/courses'}">
+                                                    View Score
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>[[${students.entryDate}]]</td>
+                                        <td>
+                                            <a class="btn btn-primary btn-sm" 
+                                               th:href="@{'/students/' + ${students.studentId} + '/courses'}">
+                                                View Courses
+                                            </a>
+                                            
+                                        </td>
+  
+                                      </tr>
+                                  </th:block>
+                                </tbody>
+                              </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+
+
+
+
+
+   
+
+
+</body>
+
+</html>

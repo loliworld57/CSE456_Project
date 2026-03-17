@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+
+    <title>Course Management</title>
+
+</head>
+
+<body>
+    <div class="content-body">
+
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header border-0 p-3">
+                        <h4 class="heading mb-0">Manage Course</h4>
+
+                        <form th:action="@{/courses}" method="get" class="mt-3">
+                            <div class="input-group search">
+                                <input type="text" class="form-control border border-primary" name="keyword" id="search"
+                                    th:value="${keyword}" placeholder="Search for courses..">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table showlist table-bordered table-hover">
+                                <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                        <th>Course ID</th>
+                                        <th>Course Subject</th>
+                                        <th>Course Name</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <th:block th:each="course : ${coursePage.content}">
+                                        <tr>
+                                            <td>[[${course.courseId}]]</td>
+                                            <td>[[${course.courseSubject}]]</td>
+                                            <td>[[${course.courseName}]]</td>
+                                            <td class="text-center">
+                                                <a class="h4 btn btn-primary btn-sm"
+                                                    th:href="@{'/courses/' + ${course.courseId} + '/students'}">
+                                                    <i class="fa-solid fa-user"></i> ([[${course.enrollments.size()}]])
+                                                </a>
+                                                <a class="h4 mr-3 btn btn-secondary btn-sm"
+                                                    th:href="@{'/courses/update/' + ${course.courseId}}">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </a>
+                                                <form th:action="@{'/courses/delete/' + ${course.courseId}}"
+                                                    method="post" style="display: inline;">
+                                                    <button type="button" class="h4 btn btn-danger btn-sm"
+                                                        onclick="showConfirmModal(this)">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                </tbody>
+                                <div class="modal fade" id="confirmModal" tabindex="-1"
+                                    aria-labelledby="confirmModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title" id="confirmModalLabel">Confirm Delete Course
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to Delete this course?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-danger"
+                                                    onclick="submitDeleteForm()">Yes, Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </table>
+
+                        </div>
+                        <div class="text-center m-3">
+                            <p>Showing page <strong>[[${coursePage.number + 1}]]</strong> of
+                                <strong>[[${coursePage.totalPages}]]</strong>
+                            </p>
+                        </div>
+                        <div class="text-center m-3">
+                            <div class="">
+                                <div class="btn-group">
+                                    <a th:href="@{/courses(page=0, keyword=${keyword})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${coursePage.first} ? 'disabled'">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+
+                                    <a th:href="@{/courses(page=${coursePage.number - 1}, keyword=${keyword})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${!coursePage.hasPrevious()} ? 'disabled'">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </div>
+
+                                <span class="btn btn-primary btn-sm">
+                                    [[${coursePage.number + 1}]]
+                                </span>
+                                <div class="btn-group">
+                                    <a th:href="@{/courses(page=${coursePage.number + 1}, keyword=${keyword})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${!coursePage.hasNext()} ? 'disabled'">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+
+                                    <a th:href="@{/courses(page=${coursePage.totalPages - 1}, keyword=${keyword})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${coursePage.last} ? 'disabled'">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center m-3">
+                            <a class="h3 btn btn-primary" th:href="@{/courses/new}">Add New Course</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            let deleteForm = null;
+
+            function showConfirmModal(button) {
+                deleteForm = button.closest('form');
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                modal.show();
+            }
+
+            function submitDeleteForm() {
+                if (deleteForm) {
+                    deleteForm.submit();
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

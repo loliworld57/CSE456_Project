@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+    <title>[[${course.courseName}]]'s Student</title>
+
+</head>
+
+<body>
+    <div class="content-body">
+        <div class="container-fluid" layout:fragment="content">
+            <div class="col-xl-12">
+                <div class="card" style="height: 85vh;">
+                    <div class="card-header border-0 p-3">
+                        <div>
+                            <h3 class="heading ">[[${course.courseName}]] </h3>
+                            <h4>Manage Student</h4>
+                        </div>
+                        <div class="text-end m-3">
+                            <a th:href="@{/courses}" class="btn btn-warning">
+                                <i class="fas fa-arrow-left"></i> Go Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0 ">
+                        <div class="table-responsive">
+                            <table class="table showlist text-center table-bordered table-hover">
+                                <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                        <th>Student ID</th>
+                                        <th>Full Name</th>
+                                        <th>Parent Number</th>
+                                        <th>Entry Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <th:block th:each="student : ${studentPage.content}">
+                                        <tr>
+                                            <td>[[${student.studentId}]]</td>
+                                            <td>[[${student.studentName}]]</td>
+                                            <td>[[${student.parentNumber}]]</td>
+                                            <td>[[${student.entryDate}]]</td>
+                                            <td>
+                                                <form
+                                                    th:action="@{'/courses/' + ${course.courseId} + '/students/' + ${student.studentId} + '/remove'}"
+                                                    method="post" style="display: inline;">
+                                                    <button type="button" class="btn btn-danger btn-sm"
+                                                        onclick="showConfirmModal(this)">
+                                                        <i class="fa-solid fa-user-minus"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                </tbody>
+                            </table>
+                            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title" id="confirmModalLabel">Confirm Remove Student</h5>
+                                            <button type="button" class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to remove this student from the course?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-danger"
+                                                onclick="submitDeleteForm()">Yes, Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="text-center m-3">
+                        <div class="text-center ">
+                            <div>
+                                <p>Showing page <strong>[[${studentPage.number + 1}]]</strong> in total of
+                                    <strong>[[${studentPage.totalPages}]]</strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="m-3">
+                            <div class="">
+                                <div class="btn-group">
+                                    <a th:href="@{'/courses/' + ${course.courseId} + '/students'(page=0, size=${studentPage.size})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${studentPage.first} ? 'disabled'">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+
+                                    <a th:href="@{'/courses/' + ${course.courseId} + '/students'(page=${studentPage.number - 1}, size=${studentPage.size})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${!studentPage.hasPrevious()} ? 'disabled'">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </div>
+
+                                <span class="btn btn-primary btn-sm">
+                                    [[${studentPage.number + 1}]]
+                                </span>
+
+                                <div class="btn-group">
+                                    <a th:href="@{'/courses/' + ${course.courseId} + '/students'(page=${studentPage.number + 1}, size=${studentPage.size})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${!studentPage.hasNext()} ? 'disabled'">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+
+                                    <a th:href="@{'/courses/' + ${course.courseId} + '/students'(page=${studentPage.totalPages - 1}, size=${studentPage.size})}"
+                                        class="btn btn-secondary btn-sm"
+                                        th:classappend="${studentPage.last} ? 'disabled'">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="btn btn-primary" th:href="@{'/courses/' + ${course.courseId} + '/enroll'}">Add
+                            New Student</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            let deleteForm = null;
+
+            function showConfirmModal(button) {
+                deleteForm = button.closest('form');
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                modal.show();
+            }
+
+            function submitDeleteForm() {
+                if (deleteForm) {
+                    deleteForm.submit();
+                }
+            }
+        </script>
+    </th:block>
+
+
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin_layout.html}">
+
+<head>
+    <title>Admin Dashboard</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3 class="text-primary">Admin Dashboard</h3>
+                            <p class="text-primary">Welcome <strong>[[${teacher.role}]] [[${teacher.name}]]</strong> to
+                                the admin dashboard. Here you can manage users, view statistics, and perform
+                                administrative tasks.</p>
+                            <p class="text-primary">Today is: [[${#temporals.format(#temporals.createNow(), 'EEEE, MMMM
+                                dd, yyyy')}]]</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="text-center text-secondary">Students per Teacher</h5>
+                                    <canvas id="studentsChart"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-center text-secondary">Courses per Teacher</h5>
+                                    <canvas id="coursesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <th:block layout:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script th:inline="javascript">
+            const studentLabels = /*[[${studentsPerTeacher.keySet()}]]*/[];
+            const studentData = /*[[${studentsPerTeacher.values()}]]*/[];
+
+            const courseLabels = /*[[${coursesPerTeacher.keySet()}]]*/[];
+            const courseData = /*[[${coursesPerTeacher.values()}]]*/[];
+
+            const studentsChart = new Chart(document.getElementById('studentsChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: studentLabels,
+                    datasets: [{
+                        data: studentData,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                    }]
+                }
+            });
+
+            const coursesChart = new Chart(document.getElementById('coursesChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: courseLabels,
+                    datasets: [{
+                        data: courseData,
+                        backgroundColor: ['#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                    }]
+                }
+            });
+        </script>
+    </th:block>
+</body>

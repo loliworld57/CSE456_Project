@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin_layout.html}">
+
+<head>
+    <title>User List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table showlist">
+                            <thead class="bg-dark">
+                                <tr class="text-secondary">
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user : ${users}"
+                                    th:classappend="${!user.isEnabled} ? 'table-danger text-muted text-decoration-line-through' : ''">
+                                    <td>[[${user.teacherId}]]</td>
+                                    <td>[[${user.name}]]</td>
+                                    <td>[[${user.email}]]</td>
+                                    <td>[[${user.phoneNumber}]]</td>
+                                    <td>[[${user.role}]]</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="showChangeRoleModal(this)"
+                                            th:data-id="${user.teacherId}" th:data-name="${user.name}"
+                                            th:data-role="${user.role}">
+                                            <i class="fa-solid fa-user-gear"></i> Change Role
+                                        </button>
+                                        <form th:action="@{/admin/disable/{id}(id=${user.teacherId})}" method="post"
+                                            style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                th:if="${user.isEnabled}"><i
+                                                    class="fa-solid fa-user-xmark"></i></button>
+                                        </form>
+
+                                        <form th:action="@{/admin/enable/{id}(id=${user.teacherId})}" method="post"
+                                            style="display:inline;">
+                                            <button type="submit" class="btn btn-success btn-sm"
+                                                th:if="${!user.isEnabled}"><i
+                                                    class="fa-solid fa-user-check"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="modal fade" id="changeRoleModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title">Change <strong id="username"> Role</h5>
+                                        <button type="button" class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form id="changeRoleForm" method="post">
+                                        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                                        <div class="modal-body">
+                                            <p>Change role for user: <strong id="userid"></strong></p>
+                                            <div class="mb-3">
+                                                <label class="form-label">Select New Role</label>
+                                                <select class="form-select" name="newRole" required>
+                                                    <option value="USER">USER</option>
+                                                    <option value="ADMIN">ADMIN</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-info">Change Role</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            function showChangeRoleModal(button) {
+                const userId = button.getAttribute("data-id");
+                const userName = button.getAttribute("data-name");
+
+                document.getElementById("username").textContent = userName;
+                document.getElementById("userid").textContent = userId;
+
+                const form = document.getElementById("changeRoleForm");
+                form.action = `/admin/users/${userId}/role`;
+
+                const modal = new bootstrap.Modal(document.getElementById('changeRoleModal'));
+                modal.show();
+            }
+        </script>
+    </th:block>
+
+
+</body>

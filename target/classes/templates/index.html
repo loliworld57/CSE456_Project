@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{main_layout.html}">
+
+<head>
+    <title>Home Tutor</title>
+</head>
+
+<body>
+
+    <div class="container-fluid" layout:fragment="content">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header border-0 p-3">
+                    <div>
+                        <h1>Welcome to Home Tutor Website</h1>
+                        <h2 class="heading mb-0">Hello [[${teacher.role}]] [[${teacher.name}]], have a great
+                            day!
+                        </h2>
+                        <p>Today is: [[${#temporals.format(#temporals.createNow(), 'EEEE, MMMM dd, yyyy')}]]</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-start">
+
+                        <div class="col-md-4">
+                            <div class="teacher-profile">
+                                <h2 class="text-center">Teacher's Profile</h2>
+                                <div class="d-flex justify-content-center">
+                                    <div class="d-flex flex-column justify-content-center align-items-center">
+                                        <img th:src="@{'/Assets/img/' + ${teacher.avatarImg}}" alt="Profile picture"
+                                            class="img-thumbnail"
+                                            style="width: 250px; height: 250px; object-fit: cover;">
+                                        <button class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#uploadAvatarModal">
+                                            <i class="fa-solid fa-image"></i> Change
+                                        </button>
+                                        <div class="modal fade" id="uploadAvatarModal">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form th:action="@{/upload-avatar}" method="post"
+                                                        enctype="multipart/form-data">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Upload Avatar</h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Choose Image</label>
+                                                                <input type="file" class="form-control" name="avatar"
+                                                                    accept="image/png,image/jpeg" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit"
+                                                                class="btn btn-primary">Upload</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <h3>[[${teacher.name}]]</h3>
+                                        <p><strong>Email:</strong> [[${teacher.email}]]</p>
+                                        <p><strong>Phone Number:</strong> [[${teacher.phoneNumber}]]</p>
+                                    </div>
+                                </div>
+                                <div class="text-center border-top mt-3 pt-3">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h4>Total Students</h4>
+                                            <p class="fs-2 fw-bold text-primary">[[${listStudents.size()}]]</p>
+                                        </div>
+                                        <div class="col">
+                                            <h4>Total Courses</h4>
+                                            <p class="fs-2 fw-bold text-primary">[[${listCourses.size()}]]</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="text-center">Students per Class</h4>
+                                <canvas id="classPieChart"></canvas>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="text-center">Final Score Distribution</h4>
+                                <canvas id="scorePolarChart" width="300" height="300"></canvas>
+                            </div>
+
+                        </div>
+                        <div class="col-md-8">
+                            <div class="col-md-12">
+                                <h3 class="bg-primary p-2 text-white">Top Student</h3>
+                                <div class="table-responsive">
+                                    <table class="table showlist table-bordered">
+                                        <thead class=" bg-info-subtle">
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Student Name</th>
+                                                <th>Final Score</th>
+                                                <th>Course</th>
+                                                <th>Performance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Loop through 10 rows -->
+                                            <tr th:each="row: ${#numbers.sequence(1, 10)}"
+                                                th:classappend=" ${row == 1 ? 'rank1' : row == 2 ? 'rank2' : row == 3 ? 'rank3' : ''}">
+                                                <td>[[${row}]]</td>
+                                                <!-- Check if we have student data for this row -->
+                                                <td th:if="${topStudents != null and topStudents.size() >= row}">
+                                                    [[${topStudents[row-1].student.studentName}]]
+                                                </td>
+                                                <td th:if="${topStudents != null and topStudents.size() >= row}">
+                                                    <span class="badge"
+                                                        th:with="finalScore=${topStudents[row-1].finalScore}"
+                                                        th:classappend="${finalScore == null ? 'bg-secondary' :
+                                                                        finalScore >= 8 ? 'bg-success' :
+                                                                        finalScore >= 6.5 ? 'bg-info' :
+                                                                        finalScore >= 5 ? 'bg-warning' :
+                                                                        finalScore >= 3.5 ? 'bg-danger' :
+                                                                        'bg-dark'}">[[${#numbers.formatDecimal(topStudents[row-1].finalScore,
+                                                        1, 2)}]]
+                                                    </span>
+                                                </td>
+                                                <td th:if="${topStudents != null and topStudents.size() >= row}">
+                                                    [[${topStudents[row-1].course.courseName}]]
+                                                </td>
+                                                <td th:if="${topStudents != null and topStudents.size() >= row}">
+                                                    <span class="badge" th:classappend="${
+                                                              #strings.trim(topStudents[row-1].performance)?.toUpperCase() == 'A' ? 'bg-success' :
+                                                              #strings.trim(topStudents[row-1].performance)?.toUpperCase() == 'B' ? 'bg-info' :
+                                                              #strings.trim(topStudents[row-1].performance)?.toUpperCase() == 'C' ? 'bg-warning' :
+                                                              #strings.trim(topStudents[row-1].performance)?.toUpperCase() == 'D' ? 'bg-danger' :
+                                                              'bg-dark'
+                                                          }"
+                                                        th:text="${topStudents[row-1].performance != null ? topStudents[row-1].performance : '#'}">
+                                                    </span>
+                                                </td>
+
+                                                <!-- Empty cells if no student data -->
+                                                <td th:if="${topStudents == null or topStudents.size() < row}"
+                                                    colspan="4" class="text-center">
+                                                    #
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <h3 class="p-2" th:classappend="${totalNetIncome > 0} ? 'bg-success' : 'bg-danger'">
+                                    Income Overview
+                                </h3>
+                                    <div class="mt-4 bg-transparent">
+                                        <canvas id="financeGroupedBarChart"></canvas>
+                                    </div>
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <tr class="table-active">
+                                                <td><strong>Total</strong></td>
+                                                <td><strong>[[${listCourses.size()}]]</strong></td>
+                                                <td class="text-profit">
+                                                    <strong>
+                                                        +[[${#numbers.formatDecimal(totalRevenues, 0, 'COMMA',
+                                                        0,
+                                                        'POINT')}]]
+                                                        VND
+                                                    </strong>
+                                                </td>
+                                                <td class="text-loss">
+                                                    <strong>
+                                                        -[[${#numbers.formatDecimal(totalExpenses, 0, 'COMMA',
+                                                        0,
+                                                        'POINT')}]]
+                                                        VND
+                                                    </strong>
+                                                </td>
+                                                <td th:class="${totalNetIncome >= 0 ? 'text-profit' : 'text-loss'}">
+                                                    <strong>
+                                                        [[${#numbers.formatDecimal(totalNetIncome, 0, 'COMMA',
+                                                        0,
+                                                        'POINT')}]]
+                                                        VND
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="position-fixed end-0 p-3" style="z-index: 1055; top: 60px;">
+            <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true" th:if="${message != null}">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        [[${message}]]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true" th:if="${error != null}">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        [[${error}]]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+
+        <th:block layout:fragment="scripts">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            <script th:inline="javascript">
+                document.addEventListener('DOMContentLoaded', function () {
+                    var messageToastEl = document.getElementById('liveToast');
+                    var errorToastEl = document.getElementById('errorToast');
+
+                    if (messageToastEl) {
+                        var messageToast = new bootstrap.Toast(messageToastEl, {
+                            delay: 3000,
+                            autohide: true
+                        });
+                        messageToast.show();
+                    }
+
+                    if (errorToastEl) {
+                        var errorToast = new bootstrap.Toast(errorToastEl, {
+                            delay: 3000,
+                            autohide: true
+                        });
+                        errorToast.show();
+                    }
+
+                    // === SCORE POLAR CHART ===
+                    const scoreLabels = [[${ scoreLabels }]];
+                    const scoreCounts = [[${ scoreCounts }]];
+                    const ctxScore = document.getElementById('scorePolarChart').getContext('2d');
+                    new Chart(ctxScore, {
+                        type: 'polarArea',
+                        data: {
+                            labels: scoreLabels,
+                            datasets: [{
+                                label: 'Score Ranges',
+                                data: scoreCounts,
+                                backgroundColor: [
+                                    '#B0BEC5', // null
+                                    '#EF5350', // <5
+                                    '#FFCA28', // <7
+                                    '#42A5F5', // <9
+                                    '#66BB6A'  // >=9
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'left'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return `${context.label}: ${context.raw} student(s)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // === CLASS PIE CHART ===
+                    const classLabels = [[${ classLabels }]];
+                    const classCounts = [[${ classCounts }]];
+                    const ctxPie = document.getElementById('classPieChart').getContext('2d');
+                    new Chart(ctxPie, {
+                        type: 'pie',
+                        data: {
+                            labels: classLabels,
+                            datasets: [{
+                                label: 'Students per Class',
+                                data: classCounts,
+                                backgroundColor: [
+                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                                    '#8BC34A', '#E91E63', '#00BCD4', '#CDDC39', '#9C27B0', '#03A9F4',
+                                    '#FF5722', '#607D8B', '#795548', '#673AB7', '#FFC107', '#009688',
+                                    '#F44336', '#3F51B5'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'left' }
+                            }
+                        }
+                    });
+
+                    // === FINANCE BAR CHART ===
+                    const labels = [[${ courseId }]];
+                    const revenues = [[${ revenues }]];
+                    const expenses = [[${ expenses }]];
+                    const netIncomes = [[${ netIncomes }]];
+
+                    const ctx = document.getElementById('financeGroupedBarChart').getContext('2d');
+
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Revenue',
+                                    data: revenues,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    grouped: false,
+                                    borderWidth: 1
+
+                                },
+                                {
+                                    label: 'Expenses',
+                                    data: expenses,
+                                    backgroundColor: 'rgba(255, 99, 90, 0.8)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    grouped: false,
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Net Income',
+                                    data: netIncomes,
+                                    backgroundColor: netIncomes.map(val => val >= 0 ? 'rgba(0, 150, 0, 1)' : 'rgba(150, 0, 0, 1)'), // dark green or dark red
+                                    borderColor: netIncomes.map(val => val >= 0 ? 'rgba(0, 100, 0, 1)' : 'rgba(139, 0, 0, 1)'),
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function (value) {
+                                            return Math.abs(value).toLocaleString() + ' ₫';
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const label = context.dataset.label;
+                                            const value = context.parsed.y;
+                                            if (label === 'Expenses') {
+                                                return label + ': ' + Math.abs(value).toLocaleString() + ' ₫';
+                                            }
+                                            return label + ': ' + value.toLocaleString() + ' ₫';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                });
+            </script>
+
+        </th:block>
+    </div>
+
+
+</body>
+
+</html>
